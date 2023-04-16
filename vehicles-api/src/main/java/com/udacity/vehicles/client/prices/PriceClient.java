@@ -32,6 +32,7 @@ public class PriceClient {
      */
     public String getPrice(Long vehicleId) {
         try {
+            log.info("getPrice called for vehicleId " + vehicleId);
             Price price = client
                     .get()
                     .uri(uriBuilder -> uriBuilder

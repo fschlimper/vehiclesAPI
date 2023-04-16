@@ -1,3 +1,6 @@
-INSERT INTO manufacturer (code, name) VALUES (1, 'Chevrolet');
-INSERT INTO manufacturer (code, name) VALUES (2, 'Toyota');
-INSERT INTO manufacturer (code, name) VALUES (3, 'Seat');
+MERGE INTO manufacturer
+    KEY(code)
+VALUES
+    (1, 'Chevrolet'),
+    (2, 'Toyota'),
+    (3, 'Seat');
