@@ -14,6 +14,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.hateoas.config.EnableHypermediaSupport;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -39,6 +40,7 @@ public class VehiclesIntegrationTest {
     private final static String CAR_ENGINE = "engine";
     private final static Integer CAR_MILEAGE = 40432;
     private final static Integer CAR_MODEL_YEAR = 2019;
+    private final static Integer CAR_MODEL_YEAR_UPDATE = 2018;
     private final static Integer CAR_PRODUCTION_YEAR = 2020;
     private final static String CAR_EXTERNAL_COLOR = "blue";
     private final static Integer CAR_MANUFACTURER_CODE = 3;
@@ -94,6 +96,34 @@ public class VehiclesIntegrationTest {
 
         resp = restTemplate.getForEntity("http://localhost:" + port + "/cars/" + car.getId(), Car.class);
         assertEquals(HttpStatus.NOT_FOUND, resp.getStatusCode());
+    }
+
+    @Test
+    public void testUpdate() {
+        ResponseEntity<Car> response = callCarCreationService(createCar());
+        assertNotNull(response);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        Car car = response.getBody();
+        assertCarIsComplete(car);
+        assertNotNull(car.getId());
+
+        response = restTemplate.getForEntity("http://localhost:" + port + "/cars/" + car.getId(), Car.class);
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        car = response.getBody();
+
+        car.getDetails().setModelYear(CAR_MODEL_YEAR_UPDATE);
+        HttpEntity<Car> carEntity = new HttpEntity<>(car);
+        response = restTemplate.exchange("http://localhost:" + port + "/cars/" + car.getId(), HttpMethod.PUT, carEntity, Car.class);
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        response = restTemplate.getForEntity("http://localhost:" + port + "/cars/" + car.getId(), Car.class);
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        car = response.getBody();
+        assertEquals(CAR_MODEL_YEAR_UPDATE, car.getDetails().getModelYear());
+
     }
 
     private ResponseEntity<Car> callCarCreationService(Car car) {
