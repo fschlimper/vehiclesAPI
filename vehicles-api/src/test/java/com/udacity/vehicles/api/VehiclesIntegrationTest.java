@@ -32,6 +32,7 @@ import static org.junit.Assert.assertNotNull;
 public class VehiclesIntegrationTest {
 
     private final static Condition CAR_CONDITION = Condition.USED;
+    private final static Condition CAR_CONDITION_UPDATE = Condition.NEW;
     private final static Location CAR_LOCATION = new Location(0d, 0d);
     private final static String CAR_BODY = "Sedan";
     private final static String CAR_MODEL = "Ibiza";
@@ -113,6 +114,7 @@ public class VehiclesIntegrationTest {
         car = response.getBody();
 
         car.getDetails().setModelYear(CAR_MODEL_YEAR_UPDATE);
+        car.setCondition(CAR_CONDITION_UPDATE);
         HttpEntity<Car> carEntity = new HttpEntity<>(car);
         response = restTemplate.exchange("http://localhost:" + port + "/cars/" + car.getId(), HttpMethod.PUT, carEntity, Car.class);
         assertNotNull(response);
@@ -123,6 +125,7 @@ public class VehiclesIntegrationTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         car = response.getBody();
         assertEquals(CAR_MODEL_YEAR_UPDATE, car.getDetails().getModelYear());
+        assertEquals(CAR_CONDITION_UPDATE, car.getCondition());
 
     }
 

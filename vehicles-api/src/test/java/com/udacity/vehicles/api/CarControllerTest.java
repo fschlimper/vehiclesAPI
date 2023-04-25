@@ -62,7 +62,7 @@ public class CarControllerTest {
      */
     @Before
     public void setup() {
-        Car car = getCar();
+        Car car = createCar();
         car.setId(1L);
         given(carService.save(any())).willReturn(car);
         given(carService.findById(any())).willReturn(car);
@@ -74,8 +74,8 @@ public class CarControllerTest {
      * @throws Exception when car creation fails in the system
      */
     @Test
-    public void createCar() throws Exception {
-        Car car = getCar();
+    public void testCreateCar() throws Exception {
+        Car car = createCar();
         mvc.perform(
                 post(new URI("/cars/newCar"))
                         .content(json.write(car).getJson())
@@ -89,7 +89,7 @@ public class CarControllerTest {
      * @throws Exception if the read operation of the vehicle list fails
      */
     @Test
-    public void listCars() throws Exception {
+    public void testListCars() throws Exception {
         mvc.perform(get(new URI("/cars")))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaTypes.HAL_JSON_UTF8))
@@ -118,7 +118,7 @@ public class CarControllerTest {
      * @throws Exception if the read operation for a single car fails
      */
     @Test
-    public void findCar() throws Exception {
+    public void testFindCar() throws Exception {
         mvc.perform(get(new URI("/cars/1/")))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaTypes.HAL_JSON_UTF8))
@@ -146,16 +146,44 @@ public class CarControllerTest {
      * @throws Exception if the delete operation of a vehicle fails
      */
     @Test
-    public void deleteCar() throws Exception {
+    public void testDeleteCar() throws Exception {
         mvc.perform(delete("/cars/1"))
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
+    }
+
+    @Test
+    public void testUpdateCar() throws Exception {
+        Car car = createCar();
+        mvc.perform(put(new URI("/cars/1"))
+                        .content(json.write(car).getJson())
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .accept(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.location.lat", is(40.730610)))
+                .andExpect(jsonPath("$.location.lon", is(-73.935242)))
+                .andExpect(jsonPath("$.details.manufacturer.code", is(101)))
+                .andExpect(jsonPath("$.details.manufacturer.name", is("Chevrolet")))
+                .andExpect(jsonPath("$.details.model", is("Impala")))
+                .andExpect(jsonPath("$.details.mileage", is(32280)))
+                .andExpect(jsonPath("$.details.externalColor", is("white")))
+                .andExpect(jsonPath("$.details.body", is("sedan")))
+                .andExpect(jsonPath("$.details.engine", is("3.6L V6")))
+                .andExpect(jsonPath("$.details.fuelType", is("Gasoline")))
+                .andExpect(jsonPath("$.details.modelYear", is(2018)))
+                .andExpect(jsonPath("$.details.productionYear", is(2018)))
+                .andExpect(jsonPath("$.details.numberOfDoors", is(4)))
+                .andExpect(jsonPath("$.condition", is("USED")))
+                .andExpect(jsonPath("$._links.self.href", is("http://localhost/cars/1")))
+                .andExpect(jsonPath("$._links.cars.href", is("http://localhost/cars")));
     }
 
     /**
      * Creates an example Car object for use in testing.
      * @return an example Car object
      */
-    private Car getCar() {
+    private Car createCar() {
         Car car = new Car();
         car.setLocation(new Location(40.730610, -73.935242));
         Details details = new Details();
